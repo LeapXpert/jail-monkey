@@ -289,7 +289,7 @@ RCT_EXPORT_METHOD(isDebuggedMode:(RCTPromiseResolveBlock) resolve
     if (isiOSAppOnMac || [self isSimulator]) {
         return false;
     }
-    return  [self checkDynamicProcessOutOfRunning] && ([self checkPaths] || [self checkSchemes] || [self canViolateSandbox] || [self canFork] || [self checkSymlinks] || [self checkDylibs]);
+    return  [self checkDynamicKernelProcessOutOfRunning] && ([self checkPaths] || [self checkSchemes] || [self canViolateSandbox] || [self canFork] || [self checkSymlinks] || [self checkDylibs]);
 }
 
 
