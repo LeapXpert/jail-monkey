@@ -257,6 +257,14 @@ RCT_EXPORT_METHOD(isDebuggedMode:(RCTPromiseResolveBlock) resolve
     resolve(isDebuggedModeActived ? @YES : @NO);
 }
 
+// For checking any process is working on kernel level
+// And also we have to ensure no cydia process is running on there
+- (BOOL)checkDynamicKernelProcessOutOfRunning
+{
+    int pid = getpgrp();
+    return pid < 0;
+}
+
 - (BOOL)isJailBroken{
     #if TARGET_OS_SIMULATOR
       return NO;
@@ -276,7 +284,7 @@ RCT_EXPORT_METHOD(isDebuggedMode:(RCTPromiseResolveBlock) resolve
     if (isiOSAppOnMac) {
         return false;
     }
-    return [self checkPaths] || [self checkSchemes] || [self canViolateSandbox] || [self canFork] || [self checkSymlinks] || [self checkDylibs];
+    return  [self checkDynamicProcessOutOfRunning] && ([self checkPaths] || [self checkSchemes] || [self canViolateSandbox] || [self canFork] || [self checkSymlinks] || [self checkDylibs]);
 }
 
 
