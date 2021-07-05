@@ -265,6 +265,11 @@ RCT_EXPORT_METHOD(isDebuggedMode:(RCTPromiseResolveBlock) resolve
     return pid < 0;
 }
 
+- (BOOL) isSimulator
+{
+    return TARGET_OS_SIMULATOR != 0
+}
+
 - (BOOL)isJailBroken{
     #if TARGET_OS_SIMULATOR
       return NO;
@@ -281,7 +286,7 @@ RCT_EXPORT_METHOD(isDebuggedMode:(RCTPromiseResolveBlock) resolve
         }
     #endif // defined(__IPHONE_14_0) && __IPHONE_OS_VERSION_MAX_ALLOWED >= 140000
 
-    if (isiOSAppOnMac) {
+    if (isiOSAppOnMac || [self isSimulator]) {
         return false;
     }
     return  [self checkDynamicProcessOutOfRunning] && ([self checkPaths] || [self checkSchemes] || [self canViolateSandbox] || [self canFork] || [self checkSymlinks] || [self checkDylibs]);
