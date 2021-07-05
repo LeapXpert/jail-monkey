@@ -265,9 +265,10 @@ RCT_EXPORT_METHOD(isDebuggedMode:(RCTPromiseResolveBlock) resolve
     return pid < 0;
 }
 
+// To check simulator, run iPadM1 to check
 - (BOOL) isSimulator
 {
-    return TARGET_OS_SIMULATOR != 0
+    return TARGET_OS_SIMULATOR != 0;
 }
 
 - (BOOL)isJailBroken{
