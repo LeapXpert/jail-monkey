@@ -38,6 +38,7 @@ RCT_EXPORT_MODULE();
             @"/Applications/MxTube.app",
             @"/Applications/RockApp.app",
             @"/Applications/SBSettings.app",
+            @"/Applications/Sileo.app",
             @"/Applications/Snoop-itConfig.app",
             @"/Applications/WinterBoard.app",
             @"/Applications/blackra1n.app",
@@ -45,6 +46,10 @@ RCT_EXPORT_MODULE();
             @"/Library/MobileSubstrate/DynamicLibraries/LiveClock.plist",
             @"/Library/MobileSubstrate/DynamicLibraries/Veency.plist",
             @"/Library/MobileSubstrate/MobileSubstrate.dylib",
+            @"/Library/PreferenceBundles/ABypassPrefs.bundle",
+            @"/Library/PreferenceBundles/FlyJBPrefs.bundle",
+            @"/Library/PreferenceBundles/LibertyPref.bundle",
+            @"/Library/PreferenceBundles/ShadowPreferences.bundle",
             @"/System/Library/LaunchDaemons/com.ikey.bbot.plist",
             @"/System/Library/LaunchDaemons/com.saurik.Cydia.Startup.plist",
             @"/bin/bash",
@@ -70,10 +75,15 @@ RCT_EXPORT_MODULE();
             @"/private/var/mobile/Library/SBSettings/Themes",
             @"/private/var/stash",
             @"/private/var/tmp/cydia.log",
+	    @"/var/tmp/cydia.log",
             @"/usr/bin/cycript",
             @"/usr/bin/sshd",
             @"/usr/lib/libcycript.dylib",
+            @"/usr/lib/libhooker.dylib",
             @"/usr/lib/libjailbreak.dylib",
+            @"/usr/lib/libsubstitute.dylib",
+            @"/usr/lib/substrate",
+            @"/usr/lib/TweakInject",
             @"/usr/libexec/cydia",
             @"/usr/libexec/cydia/firmware.sh",
             @"/usr/libexec/sftp-server",
@@ -95,7 +105,9 @@ RCT_EXPORT_MODULE();
 - (NSArray *)schemesToCheck
 {
     return @[
+            @"activator://package/com.example.package",
             @"cydia://package/com.example.package",
+            @"filza://package/com.example.package",
             @"sileo://package/com.example.package",
             @"undecimus://package/com.example.package",
             @"zbra://package/com.example.package"
@@ -123,20 +135,28 @@ RCT_EXPORT_MODULE();
             @"/.file",
             @"/usr/lib/Cephei.framework/Cephei",
             @"0Shadow.dylib",
+            @"ABypass",
+            @"Cephei",
             @"CustomWidgetIcons",
             @"CydiaSubstrate",
+            @"Electra",
+            @"FlyJB",
             @"FridaGadget",
             @"MobileSubstrate.dylib",
             @"PreferenceLoader",
             @"RocketBootstrap",
             @"SSLKillSwitch.dylib",
             @"SSLKillSwitch2.dylib",
+            @"Substitute",
+            @"SubstrateBootstrap",
+            @"SubstrateInserter",
             @"SubstrateInserter.dylib",
             @"SubstrateLoader.dylib",
             @"TweakInject.dylib",
             @"WeeLoader",
             @"cyinject",
             @"libcycript",
+            @"libhooker",
             @"libsparkapplist.dylib",
             @"zzzzLiberty.dylib",
             @"zzzzzzUnSub.dylib"
@@ -293,10 +313,17 @@ RCT_EXPORT_METHOD(isDebuggedMode:(RCTPromiseResolveBlock) resolve
     return  [self checkDynamicKernelProcessOutOfRunning] && ([self checkPaths] || [self checkSchemes] || [self canViolateSandbox] || [self canFork] || [self checkSymlinks] || [self checkDylibs]);
 }
 
+- (BOOL)canMockLocation{
+    #if TARGET_OS_SIMULATOR
+      return YES;
+    #endif
+
+    return [self isJailBroken];
+}
 
 -(NSString *)jailBrokenMessage{
     NSString *errorMessage = @"";
-    
+
     if([self isJailBroken])
     {
         if ([self checkPaths]) {
@@ -365,10 +392,10 @@ RCT_EXPORT_METHOD(isDebuggedMode:(RCTPromiseResolveBlock) resolve
 - (NSString *)checkDylibsMessage
 {
     NSString *imagePath = @"";
-    
+
     for (int i=0; i < _dyld_image_count(); i++) {
         imagePath = [NSString stringWithUTF8String:_dyld_get_image_name(i)];
-        
+
         for (NSString *dylibPath in [self dylibsToCheck]) {
             if([imagePath localizedCaseInsensitiveContainsString:dylibPath]) {
                 imagePath = [NSString stringWithFormat:@"%@,%@", imagePath, dylibPath];
@@ -382,7 +409,7 @@ RCT_EXPORT_METHOD(isDebuggedMode:(RCTPromiseResolveBlock) resolve
 {
 	return @{
 		JMisJailBronkenKey: @(self.isJailBroken),
-		JMCanMockLocationKey: @(self.isJailBroken),
+		JMCanMockLocationKey: @(self.canMockLocation),
         JMJailBrokenMessageKey : [self jailBrokenMessage]
 	};
 }
